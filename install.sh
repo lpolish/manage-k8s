@@ -238,16 +238,19 @@ main() {
     echo -e "${GREEN}Installation complete!${NC}"
 }
 
-# Pipe-to-bash handling with proper variable passing
+# Pipe-to-bash handling
 if [ ! -t 0 ]; then
-    exec bash -c "$(declare -f debug_log fail safe_mkdir download_file detect_os get_pkg_manager \
-                   is_pipe_mode install_kubectl check_and_install_kubectl ensure_local_bin_in_path \
-                   install_script main); \
-                   USER_BIN=\"$USER_BIN\" SCRIPT_NAME=\"$SCRIPT_NAME\" \
-                   INSTALL_NAME=\"$INSTALL_NAME\" REPO_OWNER=\"$REPO_OWNER\" \
-                   REPO_NAME=\"$REPO_NAME\" REPO_BRANCH=\"$REPO_BRANCH\" \
-                   BASE_URL=\"$BASE_URL\" GREEN=\"$GREEN\" YELLOW=\"$YELLOW\" \
-                   RED=\"$RED\" BLUE=\"$BLUE\" NC=\"$NC\" main"
+    # In pipe mode, write the script to a temporary file and execute it
+    TEMP_SCRIPT=$(mktemp) || fail "Failed to create temporary file"
+    debug_log "Writing script to temporary file: $TEMP_SCRIPT"
+    cat > "$TEMP_SCRIPT" || fail "Failed to write to temporary file"
+    chmod +x "$TEMP_SCRIPT" || fail "Failed to make temporary file executable"
+    
+    # Execute the temporary script with the same environment
+    bash "$TEMP_SCRIPT" || fail "Failed to execute temporary script"
+    
+    # Clean up
+    rm -f "$TEMP_SCRIPT"
 else
     main
 fi
