@@ -18,7 +18,7 @@ BASE_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${REPO_BR
 
 # Debug logging
 debug_log() {
-    echo -Bri "${BLUE}[DEBUG]${NC} $1" >&2
+    echo -e "${BLUE}[DEBUG]${NC} $1" >&2
 }
 
 # Error handling
