@@ -226,12 +226,17 @@ main() {
 
 # Pipe-to-bash handling
 if is_pipe_mode; then
-    TEMP_SCRIPT=$(mktemp) || fail "Failed to create temporary file"
-    debug_log "Writing script to temp file: $TEMP_SCRIPT"
-    cat > "$TEMP_SCRIPT" || fail "Failed to write to temporary file"
-    chmod +x "$TEMP_SCRIPT" || fail "Failed to make temporary file executable"
-    bash "$TEMP_SCRIPT" || fail "Failed to execute temporary script"
-    rm -f "$TEMP_SCRIPT"
+    echo -e "${GREEN}Installing $INSTALL_NAME via piped installer...${NC}"
+    safe_mkdir "$USER_BIN" 755
+    download_file "${BASE_URL}/${SCRIPT_NAME}" "$USER_BIN/$INSTALL_NAME" 755
+
+    echo -e "${GREEN}✓ $INSTALL_NAME installed successfully at $USER_BIN/$INSTALL_NAME${NC}"
+
+    ensure_local_bin_in_path
+
+    echo -e "\nYou can now run: $INSTALL_NAME [command] [options]"
+    exit 0
 else
     main
 fi
+
