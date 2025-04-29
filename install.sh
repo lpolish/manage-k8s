@@ -141,11 +141,17 @@ check_and_install_kubectl() {
                 install_kubectl "$os" "$pkg_manager"
             fi
         else
-            if [ "$pkg_manager" != "unknown" ]; then
-                install_kubectl "$os" "$pkg_manager"
-            else
-                echo -e "${YELLOW}Skipping kubectl install in pipe mode for unsupported system${NC}"
-            fi
+            echo -e "${GREEN}Installing $INSTALL_NAME via piped installer...${NC}"
+            safe_mkdir "$USER_BIN" 755
+            download_file "${BASE_URL}/${SCRIPT_NAME}" "$USER_BIN/$INSTALL_NAME" 755
+        
+            echo -e "${GREEN}✓ $INSTALL_NAME installed successfully at $USER_BIN/$INSTALL_NAME${NC}"
+        
+            # Ensure PATH is correctly set
+            ensure_local_bin_in_path
+        
+            echo -e "\nYou can now run: $INSTALL_NAME [command] [options]"
+            exit 0
         fi
     else
         echo -e "${GREEN}✓ kubectl already installed${NC}"
