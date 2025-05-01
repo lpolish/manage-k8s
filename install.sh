@@ -214,8 +214,51 @@ install_script() {
     fi
 }
 
+# Uninstall function
+uninstall() {
+    echo -e "${YELLOW}Uninstalling $INSTALL_NAME...${NC}"
+    
+    # Remove the script
+    if [ -f "$USER_BIN/$INSTALL_NAME" ]; then
+        rm -f "$USER_BIN/$INSTALL_NAME" || fail "Failed to remove $USER_BIN/$INSTALL_NAME"
+        echo -e "${GREEN}✓ Removed $USER_BIN/$INSTALL_NAME${NC}"
+    else
+        echo -e "${YELLOW}✓ $INSTALL_NAME not found in $USER_BIN${NC}"
+    fi
+    
+    # Remove PATH modification if it exists
+    local shell_file=""
+    if [ -f "$HOME/.zshrc" ]; then
+        shell_file="$HOME/.zshrc"
+    elif [ -f "$HOME/.bashrc" ]; then
+        shell_file="$HOME/.bashrc"
+    elif [ -f "$HOME/.profile" ]; then
+        shell_file="$HOME/.profile"
+    fi
+    
+    if [ -n "$shell_file" ]; then
+        if grep -q "export PATH=\"\$PATH:$USER_BIN\"" "$shell_file"; then
+            sed -i "/export PATH=\"\$PATH:$USER_BIN\"/d" "$shell_file"
+            echo -e "${GREEN}✓ Removed PATH modification from $shell_file${NC}"
+        fi
+    fi
+    
+    echo -e "${GREEN}✓ Uninstallation complete!${NC}"
+}
+
 # Main install workflow
 main() {
+    if [ "$1" == "--uninstall" ]; then
+        read -p "Are you sure you want to uninstall $INSTALL_NAME? [y/N] " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            uninstall
+        else
+            echo -e "${YELLOW}Uninstallation cancelled${NC}"
+        fi
+        exit 0
+    fi
+
     echo -e "${GREEN}Starting installation...${NC}"
     safe_mkdir "$USER_BIN" 755
     ensure_local_bin_in_path
@@ -237,6 +280,6 @@ if is_pipe_mode; then
     echo -e "\nYou can now run: $INSTALL_NAME [command] [options]"
     exit 0
 else
-    main
+    main "$1"
 fi
 
