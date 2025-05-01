@@ -75,6 +75,7 @@ show_help() {
     echo "  backup [NAMESPACE]  Backup all resources in a namespace"
     echo "  list-ns             List all namespaces"
     echo "  cleanup             Cleanup completed/failed pods"
+    echo "  uninstall           Uninstall the script (with confirmation)"
     echo "  help                Show this help message"
     echo ""
     echo "Options:"
@@ -460,6 +461,20 @@ main() {
                 ;;
         esac
     done
+    
+    # Handle uninstall command
+    if [[ "$1" == "uninstall" ]]; then
+        read -p "Are you sure you want to uninstall $SCRIPT_NAME? [y/N] " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            log "INFO" "Uninstalling $SCRIPT_NAME..."
+            rm -f "$(which $SCRIPT_NAME)" || log "ERROR" "Failed to remove $SCRIPT_NAME"
+            log "SUCCESS" "Uninstallation complete!"
+        else
+            log "INFO" "Uninstallation cancelled"
+        fi
+        exit 0
+    fi
     
     # Parse command
     case "$1" in
