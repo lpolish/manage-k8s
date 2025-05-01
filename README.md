@@ -38,6 +38,18 @@ chmod +x install.sh
 ./install.sh
 ```
 
+### Uninstallation
+
+To uninstall the script, you can use either of these methods:
+
+```bash
+# Method 1: Using the installer
+./install.sh --uninstall
+
+# Method 2: Using the script itself
+k8s-manager uninstall
+```
+
 The script will be installed to `~/.local/bin/k8s-manager` and will be available in your PATH after restarting your shell or sourcing your shell's RC file.
 
 ### Supported Package Managers
